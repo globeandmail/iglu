@@ -16,6 +16,7 @@ package com.snowplowanalytics.iglu.server
 package model
 
 // This project
+import org.json4s.JsonAST.{JNothing, JValue}
 import util.IgluPostgresDriver.simple._
 import validation.ValidatableJsonMethods.validateAgainstSchema
 
@@ -422,27 +423,34 @@ class SchemaDAO(val db: Database) extends DAO {
       if (preliminaryList.isEmpty) {
         (NotFound, result(404, "There are no schemas available here"))
       } else {
-        val jsonSchemas: List[JValue] =
+        val schemas: List[(String, String, JValue)] =
           preliminaryList
             .filter(s => ((s.vendor startsWith owner) || owner == "*") || s.isPublic)
             .map(s =>
               if (includeMetadata) {
-                parse(s.schema) merge Extraction.decompose(
+                (s.format, s.schema, Extraction.decompose(
                   MetadataContainer(
                     Metadata(buildLoc(s.vendor, s.name, s.format, s.version),
                       s.createdAt.toString("MM/dd/yyyy HH:mm:ss"),
                       s.updatedAt.toString("MM/dd/yyyy HH:mm:ss"),
-                      getPermission(s.vendor, owner, permission, s.isPublic))))
-              } else parse(s.schema))
+                      getPermission(s.vendor, owner, permission, s.isPublic)))))
+              } else (s.format, s.schema, JNothing))
 
-        jsonSchemas match {
-          case Nil => (Unauthorized, result(401, "You do not have sufficient privileges"))
-          case single :: Nil => (OK, writePretty(single))
-          case multiple => (OK, writePretty(multiple))
+        //final formatting and prettifying
+        if (schemas.isEmpty) {
+          (Unauthorized, result(401, "You do not have sufficient privileges"))
+        } else {
+          (OK, schemas.map {
+            case ("jsonschema", schemaString, JNothing) =>  writePretty(parse(schemaString))
+            case ("es", schemaString, JNothing) => writePretty(parse(schemaString))
+            case ("jsonschema", schemaString, metadata) =>  writePretty(parse(schemaString) merge metadata)
+            case ("es", schemaString, metadata) => writePretty(parse(schemaString) merge metadata)
+            case ("pgsql", schemaString, metadata) => "--" + metadata + '\n' + schemaString
+            case ("pgsql", schemaString: String, JNothing) =>  schemaString
+          }.mkString("\n"))
         }
       }
     }
-
   /**
     * Gets only metadata about the schema: its vendor, name, format and version.
     * @param vendors the schema's vendors
@@ -696,6 +704,14 @@ class SchemaDAO(val db: Database) extends DAO {
             }
           case None => (BadRequest, result(400, "The schema provided is not valid"))
         }
+      case "es" =>
+        parseOpt(schema) match {
+          case Some(jvalue) => (OK ,schema)
+          case None => (BadRequest, result(400, "The schema provided is not valid"))
+        }
+      case "pgsql" =>
+        //TODO: Add validation of the DDL
+        (OK ,schema)
       case _ => (BadRequest, result(400, "The schema format provided is not supported"))
     }
 
