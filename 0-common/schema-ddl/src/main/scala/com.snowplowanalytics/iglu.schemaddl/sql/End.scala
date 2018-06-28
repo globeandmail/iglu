@@ -10,8 +10,8 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.snowplowanalytics.iglu.schemaddl.redshift
+package com.snowplowanalytics.iglu.schemaddl.sql
 
-case class CreateSchema(schemaName: String) extends Statement {
-  def toDdl = s"CREATE SCHEMA IF NOT EXISTS $schemaName"
+case object End extends Statement {
+  def toDdl = "END TRANSACTION"
 }

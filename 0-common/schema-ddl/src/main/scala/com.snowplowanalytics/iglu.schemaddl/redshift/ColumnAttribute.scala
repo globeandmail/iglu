@@ -10,21 +10,10 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.snowplowanalytics.iglu.schemaddl.redshift
+package com.snowplowanalytics.iglu.schemaddl
+package redshift
 
-/**
- * column_attributes are:
- * [ DEFAULT default_expr ]
- * [ IDENTITY ( seed, step ) ]
- * [ ENCODE encoding ]
- * [ DISTKEY ]
- * [ SORTKEY ]
- */
-sealed trait ColumnAttribute extends Ddl
-
-case class Default(value: String) extends ColumnAttribute {
-  def toDdl = s"DEFAULT $value"
-}
+import sql.{ColumnAttribute, Ddl}
 
 case class Identity(seed: Int, step: Int) extends ColumnAttribute {
   def toDdl = s"IDENTITY ($seed, $step)"

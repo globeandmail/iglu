@@ -11,22 +11,34 @@
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
 package com.snowplowanalytics.iglu.schemaddl
-package redshift
-
-import sql.DataType
+package sql
 
 /**
- * Data types
- * http://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
+ * Base class for everything that can be represented as Redshift DDL
  */
+trait Ddl {
+  /**
+   * Output actual DDL as string
+   *
+   * @return valid DDL
+   */
+  def toDdl: String
 
-// CUSTOM
-/**
- * These predefined data types assembles into usual Redshift data types, but
- * can store additional information such as warnings.
- * Using to prevent output on DDL-generation step.
- */
-case class ProductType(override val warnings: List[String]) extends DataType {
-  def toDdl = "VARCHAR(4096)"
+  /**
+   * Aggregates all warnings from child elements
+   */
+  val warnings: List[String] = Nil
+
+  /**
+   * Append specified amount of ``spaces`` to the string to produce formatted DDL
+   *
+   * @param spaces amount of spaces
+   * @param str string itself
+   * @return string with spaces
+   */
+  def withTabs(spaces: Int, str: String): String =
+    if (str.length == 0) " " * spaces
+    else if (spaces <= str.length) str
+    else str + (" " * (spaces - str.length))
 }
 

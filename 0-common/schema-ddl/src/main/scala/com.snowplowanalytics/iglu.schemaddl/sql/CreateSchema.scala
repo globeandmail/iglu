@@ -10,23 +10,8 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.snowplowanalytics.iglu.schemaddl
-package redshift
+package com.snowplowanalytics.iglu.schemaddl.sql
 
-import sql.DataType
-
-/**
- * Data types
- * http://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
- */
-
-// CUSTOM
-/**
- * These predefined data types assembles into usual Redshift data types, but
- * can store additional information such as warnings.
- * Using to prevent output on DDL-generation step.
- */
-case class ProductType(override val warnings: List[String]) extends DataType {
-  def toDdl = "VARCHAR(4096)"
+case class CreateSchema(schemaName: String) extends Statement {
+  def toDdl = s"CREATE SCHEMA IF NOT EXISTS $schemaName"
 }
-

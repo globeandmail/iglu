@@ -10,10 +10,11 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.snowplowanalytics.iglu.schemaddl.redshift
+package com.snowplowanalytics.iglu.schemaddl.sql
 
 /**
  * Class holding data to alter some table with single [[AlterTableStatement]]
+ *
  * @see http://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_TABLE.html
  *
  * ALTER TABLE table_name
@@ -78,7 +79,7 @@ case class AddColumn(
   columnName: String,
   columnType: DataType,
   default: Option[Default],
-  encode: Option[CompressionEncoding],
+  encode: Option[ColumnAttribute],
   nullability: Option[Nullability]
 ) extends AlterTableStatement {
   def toDdl = {

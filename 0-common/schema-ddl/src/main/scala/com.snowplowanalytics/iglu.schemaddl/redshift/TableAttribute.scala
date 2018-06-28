@@ -15,13 +15,16 @@ package com.snowplowanalytics.iglu.schemaddl.redshift
 // Scalaz
 import scalaz.NonEmptyList
 
+// This project
+import com.snowplowanalytics.iglu.schemaddl.sql.Ddl
+import com.snowplowanalytics.iglu.schemaddl.sql.TableAttribute
+
 /**
  * table_attributes are:
  * [ DISTSTYLE { EVEN | KEY | ALL } ]
  * [ DISTKEY ( column_name ) ]
  * [ [COMPOUND | INTERLEAVED ] SORTKEY ( column_name [, ...] ) ]
  */
-sealed trait TableAttribute extends Ddl
 
 sealed trait DiststyleValue extends Ddl
 case object Even extends DiststyleValue { def toDdl = "EVEN" }

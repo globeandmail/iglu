@@ -10,8 +10,11 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package com.snowplowanalytics.iglu.schemaddl.redshift
+package com.snowplowanalytics.iglu.schemaddl
+package redshift
 package generators
+
+import sql._
 
 object EncodeSuggestions {
   /**
@@ -23,15 +26,15 @@ object EncodeSuggestions {
   // Suggest LZO Encoding for boolean, double precision and real
   val lzoSuggestion: EncodingSuggestion = (properties, dataType, columnName) =>
     dataType match {
-      case RedshiftBoolean => Some(RunLengthEncoding)
-      case RedshiftDouble => Some(RawEncoding)
-      case RedshiftReal => Some(RawEncoding)
+      case SqlBoolean => Some(RunLengthEncoding)
+      case SqlDouble => Some(RawEncoding)
+      case SqlReal => Some(RawEncoding)
       case _ => None
     }
 
   val zstdSuggestion: EncodingSuggestion = (properties, dataType, columnName) =>
     dataType match {
-      case RedshiftVarchar(_) => Some(ZstdEncoding)
+      case SqlVarchar(_) => Some(ZstdEncoding)
       case _ => None
     }
 }
